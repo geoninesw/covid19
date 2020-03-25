@@ -44,7 +44,7 @@ Deployment Mode : Framework-Dependent
 
 Target Runtime: Portable
 
-[Published Application](https://bit.ly/2WEYSaa)
+[Published Application](https://bit.ly/2UiKR0k)
 
 You can download and adjust connection string to point to your database server by editing **Covid19\appsettings.json** (Or any environment settings you desire) then copy to your web server
 > If you have any problem while hosting your applicaton onto IIS, [Host ASP.NET Core on Windows with IIS](https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/iis/?view=aspnetcore-3.1) article from Micrsoft could help you through.
