@@ -1,0 +1,36 @@
+version: "3.7"
+
+services:
+
+  sqlexpress:
+    image: "mcr.microsoft.com/mssql/server:2017-latest-ubuntu"
+    environment:
+      SA_PASSWORD: "[SA_PASSWORD]"
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Express"
+      MSSQL_COLLATION: "Thai_CI_AS"
+    ports:
+      - "1433:1433"
+    volumes:
+      - "/var/opt/mssql/geo9/data:/var/opt/mssql/data"
+      - "/var/opt/mssql/geo9/log:/var/opt/mssql/log"
+      - "/var/opt/mssql/geo9/secrets:/var/opt/mssql/secrets"
+    container_name: "covid_db"
+    
+  reverseproxy:
+    build:
+      context: ./Nginx
+      dockerfile: Nginx.Dockerfile
+    ports:
+      - "80:80"
+    restart: always
+
+  covidapp:
+    depends_on:
+      - reverseproxy
+    build:
+      context: .
+      dockerfile: App.Dockerfile
+    expose:
+      - "5000"
+    restart: always

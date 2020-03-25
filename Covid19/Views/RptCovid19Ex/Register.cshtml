@@ -1,0 +1,301 @@
+﻿@model Covid19.ViewModels.EmployeeViewModel
+@{
+    ViewBag.Title = "Register";
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
+
+    var selectListModel = (SelectListModel)ViewBag.ListModel;
+}
+
+<style>
+
+    #covid-form {
+        font-size: 18px
+    }
+
+</style>
+
+<div id="covid-form" class="panel panel-primary" style="margin-top:10px; margin-bottom:10px">
+    <div class="panel-body">
+
+        @using (Html.BeginForm("Register", "RptCovid19Ex", FormMethod.Post, new { enctype = "multipart/form-data", id = "form" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(model => model.PERSON_ID)
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <h3><b>เลขบัตรประจำตัวประชาชน/เลขบัตรพนักงาน : @Model.PERSON_ID</b></h3>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="control-label">ชื่อ <i style="color:red">*</i></label>
+                        <input type="text" name="FIRSTNAME" class="form-control" autocomplete="off" value="@Model.FIRSTNAME" />
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="control-label require">นามสกุล <i style="color:red">*</i></label>
+                        <input type="text" name="LASTNAME" class="form-control" autocomplete="off" value="@Model.LASTNAME" />
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="control-label">วันเกิด</label>
+                        <div class="input-group date date-calendar">
+                            <input type="text" id="BIRTHDATE" name="BIRTHDATE" class="form-control" autocomplete="off" value="@Html.ViewDateFormat(Model.BIRTHDATE)" />
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="control-label">สัญชาติ</label>
+                        @Html.DropDownListFor(o => o.NATIONALITY, selectListModel.LUT_COUNTRY_ALL(), "", htmlAttributes: new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="control-label require">หน่วยงาน/บริษัท</label>
+                        <input type="text" name="ORGDESC" class="form-control" autocomplete="off" value="@Model.ORGDESC" />
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="control-label require">อาชีพ</label>
+                        <input type="text" name="JOBDESC" class="form-control" autocomplete="off" value="@Model.JOBDESC" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="control-label">อีเมล</label>
+                        <input type="text" name="EMAIL" class="form-control" autocomplete="off" value="@Model.EMAIL" />
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="control-label">เบอร์โทร <i style="color:red">*</i></label>
+                        <input type="text" name="TEL" class="form-control" autocomplete="off" value="@Model.TEL" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <label class="control-label"><u>ที่อยู่</u></label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="control-label">บ้านเลขที่</label>
+                        <input type="text" name="HOUSE_NO" class="form-control" autocomplete="off" value="@Model.HOUSE_NO" />
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="control-label">หมู่</label>
+                        <input type="text" name="MOO" class="form-control" autocomplete="off" value="@Model.MOO" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="control-label">จังหวัด</label>
+                        @Html.DropDownListFor(o => o.PROV_CODE, Enumerable.Empty<SelectListItem>(), "", htmlAttributes: new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="control-label">อำเภอ</label>
+                        @Html.DropDownListFor(o => o.AMP_CODE, Enumerable.Empty<SelectListItem>(), "", htmlAttributes: new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="control-label">ตำบล</label>
+                        @Html.DropDownListFor(o => o.TAM_CODE, Enumerable.Empty<SelectListItem>(), "", htmlAttributes: new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <label class="control-label" style="margin-top: 1.5em"><u>ประวัติการเดินทาง</u></label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="control-label">รายละเอียดการเดินทาง (เดินทางไป/กลับจังหวัด/เขต/สถานที่)</label>
+                        <input type="text" name="JOURNEY_DESCR" class="form-control" autocomplete="off" value="@Model.JOURNEY_DESCR" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="control-label">วันที่เดินทางไป</label>
+                        <div class="input-group date date-calendar">
+                            <input type="text" id="DEPARTURE_DT" name="DEPARTURE_DT" class="form-control" autocomplete="off" value="@Html.ViewDateFormat(Model.DEPARTURE_DT)" />
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="control-label">วันที่เดินทางกลับ</label>
+                        <div class="input-group date date-calendar">
+                            <input type="text" id="ARRIVAL_DT" name="ARRIVAL_DT" class="form-control" autocomplete="off" value="@Html.ViewDateFormat(Model.ARRIVAL_DT)" />
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="control-label">วันที่ได้รับแจ้ง</label>
+                        <div class="input-group date date-calendar">
+                            <input type="text" id="REPORT_DT" name="REPORT_DT" class="form-control" autocomplete="off" value="@Html.ViewDateFormat(Model.REPORT_DT)" />
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="control-label">หน่วยงานที่รับผิดชอบ (เช่น รพ.สต เป็นต้น)</label>
+                        <input type="text" name="RESPONSIBLE_BY" class="form-control" autocomplete="off" value="@Model.RESPONSIBLE_BY" />
+                    </div>
+                </div>
+            </div>
+            <hr />
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <div class="form-group">
+                        <button id="btnSubmit" type="submit" class="btn btn-primary"><i class="fa fa-save"></i> บันทึก</button>
+                        <button class="btn btn-default" type="button" onclick="window.location.href='@Url.Action("Index")'"><i class="fa fa-remove"></i> ยกเลิก</button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+
+@section scripts {
+    <script src="~/js/Geo9/province-select.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            $("#NATIONALITY").select2({ allowClear: true, placeholder: '-- กรุณาเลือก --' });
+
+            $(".date-calendar").datepicker({
+                dateFormat: "dd/mm/yy",
+                language: "th-th",
+                autoclose: true,
+                todayHighlight: true,
+                todayBtn: false,
+                clearBtn: true,
+                endDate: '0d'
+            });
+
+            $('.date-calendar').datepicker().on('hide', function (e) {
+                // `e` here contains the extra attributes
+                $('#DEPARTURE_DT').valid()
+                $('#ARRIVAL_DT').valid()
+            });
+
+            initProvSelect();
+
+            function initProvSelect() {
+                $.fn.ProvSelect.Default.LutAreaPath = '@Url.Action("LUT_AREA", "Data")';
+                var ProvSelect = $.fn.ProvSelect('#PROV_CODE', '#AMP_CODE', '#TAM_CODE', function () {});
+            }
+
+            var validator = $("#form").validate({
+                rules: {
+                    FIRSTNAME: { required: true, maxlength: 255 },
+                    LASTNAME: { required: true, maxlength: 255 },
+                    ORGDESC: { maxlength: 255 },
+                    JOBDESC: { maxlength: 255 },
+                    EMAIL: { email: true, maxlength: 50 },
+                    TEL: { required: true, maxlength: 50 },
+                    HOUSE_NO: { maxlength: 50 },
+                    MOO: { maxlength: 10 },
+                    JOURNEY_DESCR: { maxlength: 255 },
+                    RESPONSIBLE_BY: { maxlength: 200 },
+                    BIRTHDATE: { dateFormat: true },
+                    DEPARTURE_DT: {
+                        dateFormat: true,
+                        dateMin: { maxDate: "#ARRIVAL_DT" }
+                    },
+                    ARRIVAL_DT: {
+                        dateFormat: true,
+                        dateMax: { minDate: "#DEPARTURE_DT" }
+                    },
+                    REPORT_DT: { dateFormat: true },
+                },
+                submitHandler: function (form) {
+
+                    globalFunction.confirm({
+                        message: 'ต้องการบันทึกข้อมูล ?',
+                        okCallback: function () {
+                            globalFunction.showLoading("submit");
+
+                            // Get form
+                            var form = $('#form')[0];
+                            // Create an FormData object
+                            var data = new FormData(form);
+
+                            $.ajax({
+                                url: $("#form").attr('action'),
+                                type: "POST",
+                                data: data, //for file
+                                processData: false, //for file
+                                contentType: false, //for file
+                                success: function (result) {
+                                    globalFunction.hideLoading("submit");
+                                    if (result.success == true) {
+                                        globalFunction.alert({
+                                                message: "บันทึกข้อมูลสำเร็จ",
+                                                callback: function () {
+                                                    //window.location.href = "@Url.Action("Index")";
+                                                    window.location.href = "@Url.Action("Intro")?id=" + '@Model.PERSON_ID';
+                                                },
+                                            });
+                                    } else {
+                                        if (result.code == -1) {
+                                            globalFunction.alert({
+                                                message: "Session หมดอายุ กรุณาเข้าสู่ระบบอีกครั้ง",
+                                                callback: function () {
+                                                    window.location.href = "@Url.Action("Login","Home")";
+                                                },
+                                            });
+                                        } else if (result.code == 1) {
+                                            globalFunction.alert({ type: "error", message: result.message });
+                                        } else {
+                                            globalFunction.alert({ type: "error", message: "เกิดข้อผิดพลาด" });
+                                        }
+                                    }
+                                },
+                                error: function (e) {
+                                    globalFunction.hideLoading("submit");
+                                    globalFunction.alert({ type: "error", message: "เกิดข้อผิดพลาด" });
+                                }
+                            });
+                        }
+                    });
+
+
+                    return false;
+                }
+            });
+        });
+    </script>
+}
+

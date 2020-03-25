@@ -1,0 +1,721 @@
+﻿@model Covid19.ViewModels.RptCovid19ExViewModel
+@{
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
+
+    var selectListModel = (SelectListModel)ViewBag.ListModel;
+    var symtomList = ViewBag.SymtomList;
+}
+<style>
+
+    #covid-form {
+        font-size: 18px
+    }
+</style>
+
+<div id="covid-form" class="panel panel-primary" style="margin-top:10px; margin-bottom:10px">
+    @*<div class="panel-heading">
+            <h3 class="panel-title">
+                รายงานสุขภาพ (เฝ้าระวัง COVID-19)
+            </h3>
+        </div>*@
+    <div class="panel-body">
+        @using (Html.BeginForm("Form", "RptCovid19Ex", FormMethod.Post, new { enctype = "multipart/form-data", id = "form" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(model => model.PERSON_ID)
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="col-form-label">ผู้เดินทางไปต่างประเทศ <span class="text-danger" style="font-size:22px">หลังวันที่ 1 กุมภาพันธ์ 2563</span><i style="color:red">*</i></label>
+                        <div>
+                            @foreach (SelectListItem item in selectListModel.LUT_COVID_REPORTER())
+                            {
+                                <label style="margin-left:20px;" class="checkbox-inline">
+                                    <input type="checkbox" class="parent-validation" value="@item.Value" name="REPORTERS" @if (Model.REPORTERS != null) { foreach (var v in Model.REPORTERS) { if (v.ToString() == item.Value) { <text> checked="checked" </text> } } } /> @item.Text
+                                </label>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="emp" style="display:none">
+
+                <div class="panel panel-default" style="background:#f2faff">
+                    <div class="panel-body">
+                        <label><u>ข้อมูลการเดินทางไปต่างประเทศของ</u><span class="text-danger" style="font-size:22px">ตนเอง</span></label>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="col-form-label">1. ประเทศที่เดินทางไปยังหรือแวะผ่าน (Transit) <i style="color:red">*</i></label>
+                                    <div>
+                                        @foreach (SelectListItem item in selectListModel.LUT_COUNTRY(true))
+                                        {
+                                            <label style="margin-left:20px;" class="checkbox-inline"> <input type="checkbox" class="parent-validation" value="@item.Value" name="COUNTRY" @if (Model.COUNTRY != null) { foreach (var v in Model.COUNTRY) { if (v.ToString() == item.Value) { <text> checked="checked" </text> } } }> <i></i>@item.Text</label>
+
+                                        }
+                                        <label style="margin-left:20px;" class="checkbox-inline"> <input id="COUNTRY_OTHER" type="checkbox" class="parent-validation" value="999" name="COUNTRY" @if (Model.COUNTRY != null) { foreach (var v in Model.COUNTRY) { if (v == 999) { <text> checked="checked" </text> } } }> <i></i>อื่น ๆ</label>
+                                        @Html.DropDownListFor(o => o.COUNTRY_ID, selectListModel.LUT_COUNTRY(false), "", htmlAttributes: new { @class = "form-control", style = "width:220px; display:inline-block", @disabled = true })
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="control-label">2. วันที่เดินทางออกจากประเทศไทย <i style="color:red">*</i></label>
+                                    <div class="input-group date date-calendar">
+                                        <input type="text" id="DEPARTURE_DT" name="DEPARTURE_DT" class="form-control" autocomplete="off" value="@Html.ViewDateFormat(Model.DEPARTURE_DT)" />
+                                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="control-label">เที่ยวบินที่เดินทางไป</label>
+                                    <input type="text" name="DEPARTURE_FLIGHT" class="form-control" autocomplete="off" value="@Model.DEPARTURE_FLIGHT" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="control-label">3. วันที่เดินทางกลับถึงประเทศไทย <i style="color:red">*</i></label>
+                                    <div class="input-group date date-calendar">
+                                        <input type="text" id="ARRIVAL_DT" name="ARRIVAL_DT" class="form-control" autocomplete="off" value="@Html.ViewDateFormat(Model.ARRIVAL_DT)" />
+                                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="control-label">เที่ยวบินที่เดินทางกลับ</label>
+                                    <input type="text" name="ARRIVAL_FLIGHT" class="form-control" autocomplete="off" value="@Model.ARRIVAL_FLIGHT" />
+                                </div>
+                            </div>
+                        </div>
+                        <hr />
+                        <label><u>ข้อมูลสุขภาพของ</u><span class="text-danger" style="font-size:22px">ตนเอง</span></label>
+
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="col-form-label">1. ท่านมีไข้หรือไม่ <i style="color:red">*</i></label><br />
+                                    <div>
+                                        <label style="margin-left:20px;" class="radio-inline"> <input type="radio" class="parent-validation" value="1" name="HAS_FLU"> <i></i>มีไข้</label>
+
+                                        <label style="margin-left:20px;" class="radio-inline"> <input type="radio" class="parent-validation" value="0" name="HAS_FLU"> <i></i>ไม่มีไข้</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="control-label">อุณหภูมิ (&#8451;)</label>
+                                    <input id="TEMPERATURE" type="text" name="TEMPERATURE" class="form-control" autocomplete="off" value="@Model.TEMPERATURE" disabled />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="col-form-label">2. ท่านมีอาการดังต่อไปนี้</label>
+                                    <div>
+                                        @foreach (var item in symtomList)
+                                        {
+                                            if (item.ID == 98)
+                                            {
+                                                <div>
+                                                    <label style="margin-left:20px;" class="checkbox-inline"> <input id="SYMTOMS_@item.ID" type="checkbox" class="parent-validation custom-require-disable1" value="@item.ID" name="SYMTOMS"> <i></i>@item.SYMTOM</label> <input type="text" name="SYMTOMS_OTHER_TEXT" id="SYMTOMS_OTHER_TEXT" class="form-control" autocomplete="off" disabled style="display:inline; width:20%;" />
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <label style="margin-left:20px;" class="checkbox-inline"> <input id="SYMTOMS_@item.ID" type="checkbox" class="parent-validation" value="@item.ID" name="SYMTOMS"> <i></i>@item.SYMTOM</label>
+                                            }
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="col-form-label">3. ท่านมีประวัติใกล้ชิดหรือสัมผัสกับผู้ป่วยเข้าข่ายหรือยืนยันโรคติดเชื้อไวรัส COVID-19</label>
+                                    <div>
+                                        <label style="margin-left:20px;" class="radio-inline"> <input type="radio" class="parent-validation" value="false" name="CLOSE_PATIENT_FLAG"> <i></i>ไม่ใช่</label>
+                                        <label style="margin-left:20px;" class="radio-inline"> <input type="radio" class="parent-validation" value="true" name="CLOSE_PATIENT_FLAG"> <i></i>ใช่</label>
+                                        <input type="text" id="CLOSE_PATIENT_DETAIL" name="CLOSE_PATIENT_DETAIL" class="form-control" style="display:inline; width:80%" disabled placeholder="รายละเอียด" />
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="col-form-label">4. บุคคลใกล้ชิด<span class="text-danger" style="font-size:22px">ที่ไม่ได้เดินทางกับท่าน</span>มีไข้หรือไม่</label><br />
+                                    <div>
+                                        <label style="margin-left:20px;" class="radio-inline"> <input type="radio" class="parent-validation" value="1" name="HAS_FLU_OTHER"> <i></i>มีไข้</label>
+
+                                        <label style="margin-left:20px;" class="radio-inline"> <input type="radio" class="parent-validation" value="0" name="HAS_FLU_OTHER"> <i></i>ไม่มีไข้</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="col-form-label">5. บุคคลใกล้ชิด<span class="text-danger" style="font-size:22px">ที่ไม่ได้เดินทางกับท่าน</span>มีอาการดังต่อไปนี้</label>
+                                    <div>
+                                        @foreach (var item in symtomList)
+                                        {
+                                            if (item.ID == 98)
+                                            {
+                                                <div>
+                                                    <label style="margin-left:20px;" class="checkbox-inline"> <input id="SYMTOMS_OTHER_@item.ID" type="checkbox" class="parent-validation custom-require-disable2" value="@item.ID" name="SYMTOMS_OTHER"> <i></i>@item.SYMTOM</label> <input type="text" name="SYMTOMS_OTHER_TEXT_OTHER" id="SYMTOMS_OTHER_TEXT_OTHER" class="form-control" autocomplete="off" disabled style="display:inline; width:20%;" />
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <label style="margin-left:20px;" class="checkbox-inline"> <input id="SYMTOMS_OTHER_@item.ID" type="checkbox" class="parent-validation" value="@item.ID" name="SYMTOMS_OTHER"> <i></i>@item.SYMTOM</label>
+                                            }
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="closer" style="display:none">
+                <div class="panel panel-default" style="background:#f5f5f5">
+                    <div class="panel-body">
+                        <label><u>ข้อมูลการเดินทางไปต่างประเทศของ</u><span class="text-danger" style="font-size:22px">บุคคลใกล้ชิด</span></label>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="col-form-label">1. ประเทศที่เดินทางไปยังหรือแวะผ่าน (Transit) <i style="color:red">*</i></label>
+                                    <div>
+                                        @foreach (SelectListItem item in selectListModel.LUT_COUNTRY(true))
+                                        {
+                                            <label style="margin-left:20px;" class="checkbox-inline"> <input type="checkbox" class="parent-validation" value="@item.Value" name="COUNTRY2" @if (Model.COUNTRY2 != null) { foreach (var v in Model.COUNTRY2) { if (v.ToString() == item.Value) { <text> checked="checked" </text> } } }> <i></i>@item.Text</label>
+
+                                        }
+                                        <label style="margin-left:20px;" class="checkbox-inline"> <input id="COUNTRY_OTHER2" type="checkbox" class="parent-validation" value="999" name="COUNTRY2" @if (Model.COUNTRY2 != null) { foreach (var v in Model.COUNTRY2) { if (v == 999) { <text> checked="checked" </text> } } }> <i></i>อื่น ๆ</label>
+                                        @Html.DropDownListFor(o => o.COUNTRY_ID2, selectListModel.LUT_COUNTRY(false), "", htmlAttributes: new { @class = "form-control", style = "width:220px; display:inline-block", @disabled = true })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="control-label">2. วันที่เดินทางออกจากประเทศไทย <i style="color:red">*</i></label>
+                                    <div class="input-group date date-calendar">
+                                        <input type="text" id="DEPARTURE_DT2" name="DEPARTURE_DT2" class="form-control" autocomplete="off" value="@Html.ViewDateFormat(Model.DEPARTURE_DT2)" />
+                                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="control-label">เที่ยวบินที่เดินทางไป</label>
+                                    <input type="text" name="DEPARTURE_FLIGHT2" class="form-control" autocomplete="off" value="@Model.DEPARTURE_FLIGHT2" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="control-label">3. วันที่เดินทางกลับถึงประเทศไทย <i style="color:red">*</i></label>
+                                    <div class="input-group date date-calendar">
+                                        <input type="text" id="ARRIVAL_DT2" name="ARRIVAL_DT2" class="form-control" autocomplete="off" value="@Html.ViewDateFormat(Model.ARRIVAL_DT2)" />
+                                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="control-label">เที่ยวบินที่เดินทางกลับ</label>
+                                    <input type="text" name="ARRIVAL_FLIGHT2" class="form-control" autocomplete="off" value="@Model.ARRIVAL_FLIGHT2" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label class="control-label">4. ชื่อผู้ที่เดินทางไปต่างประเทศ</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group" style="margin-left:30px;">
+                                    <label class="control-label">4.1 ชื่อ - นามสกุล</label>
+                                    <input type="text" name="COMPANION_NAME1" class="form-control" autocomplete="off" value="@Model.COMPANION_NAME1" />
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="control-label">เกี่ยวข้องเป็น</label><br />
+                                    @Html.DropDownListFor(o => o.COMPANION_RELATION1, selectListModel.LUT_COVID_RELATION(), "", htmlAttributes: new { @class = "form-control", style = "width:100%;" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group" style="margin-left:30px;">
+                                    <label class="control-label">4.2 ชื่อ - นามสกุล</label>
+                                    <input type="text" name="COMPANION_NAME2" class="form-control" autocomplete="off" value="@Model.COMPANION_NAME2" />
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="control-label">เกี่ยวข้องเป็น</label><br />
+                                    @Html.DropDownListFor(o => o.COMPANION_RELATION2, selectListModel.LUT_COVID_RELATION(), "", htmlAttributes: new { @class = "form-control", style = "width:100%;" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group" style="margin-left:30px;">
+                                    <label class="control-label">4.3 ชื่อ - นามสกุล</label>
+                                    <input type="text" name="COMPANION_NAME3" class="form-control" autocomplete="off" value="@Model.COMPANION_NAME3" />
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="control-label">เกี่ยวข้องเป็น</label><br />
+                                    @Html.DropDownListFor(o => o.COMPANION_RELATION3, selectListModel.LUT_COVID_RELATION(), "", htmlAttributes: new { @class = "form-control", style = "width:100%;" })
+                                </div>
+                            </div>
+                        </div>
+                        <hr />
+                        <label><u>ข้อมูลสุขภาพของ</u><span class="text-danger" style="font-size:22px">บุคคลใกล้ชิด</span></label>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="col-form-label">1. บุคคลใกล้ชิดท่านมีไข้หรือไม่ <i style="color:red">*</i></label><br />
+                                    <div>
+                                        <label style="margin-left:20px;" class="radio-inline"> <input type="radio" class="parent-validation" value="1" name="HAS_FLU2"> <i></i>มีไข้</label>
+
+                                        <label style="margin-left:20px;" class="radio-inline"> <input type="radio" class="parent-validation" value="0" name="HAS_FLU2"> <i></i>ไม่มีไข้</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="col-form-label">2. บุคคลใกล้ชิดท่านมีอาการดังต่อไปนี้</label>
+                                    <div>
+                                        @foreach (var item in symtomList)
+                                        {
+                                            if (item.ID == 98)
+                                            {
+                                                <div>
+                                                    <label style="margin-left:20px;" class="checkbox-inline"> <input id="SYMTOMS2_@item.ID" type="checkbox" class="parent-validation custom-require-disable3" value="@item.ID" name="SYMTOMS2"> <i></i>@item.SYMTOM</label> <input type="text" name="SYMTOMS2_OTHER_TEXT" id="SYMTOMS2_OTHER_TEXT" class="form-control" autocomplete="off" disabled style="display:inline; width:20%;" />
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <label style="margin-left:20px;" class="checkbox-inline"> <input id="SYMTOMS2_@item.ID" type="checkbox" class="parent-validation" value="@item.ID" name="SYMTOMS2"> <i></i>@item.SYMTOM</label>
+                                            }
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr />
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <div class="form-group">
+                        <button id="btnSubmit" type="submit" class="btn btn-primary title-primary-small"><i class="fa fa-save"></i> บันทึก</button>
+                        <button id="btnCancel" class="btn btn-default title-default-small" type="button" onclick="window.location.href='@Url.Action("Intro")?id=@Model.PERSON_ID'"><i class="fa fa-chevron-circle-left"></i> ย้อนกลับ</button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="thankyouModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel"></h4>
+            </div>
+            <div class="modal-body text-center">
+                <div class="row">
+                    <div class="col-md-12">
+                        <img src="~/images/thankyou.png" width="250" />
+                        <h3>ขอบพระคุณที่รายงานประจำวันที่ <span id="dateText"></span> ค่ะ</h3>
+                    </div>
+                    <div class="col-md-12" style="margin-top:20px;">
+                        <h4>
+                            <a href="@ViewBag.UpdatedSituation" style="text-decoration:underline;" target="_blank">ติดตามสถานการณ์ล่าสุด</a>
+                        </h4>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="closeBtn" type="button" class="btn btn-primary">ปิด</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+
+    <script type="text/javascript">
+        $(function () {
+
+              var validator = $("#form").validate({
+                rules: {
+                    REPORTERS: { required: true },
+                    DEPARTURE_DT: { required: true, dateFormat: true, dateMin: { maxDate: '#ARRIVAL_DT' } },
+                    ARRIVAL_DT: { required: true, dateFormat: true, dateMax: { minDate: '#DEPARTURE_DT' } },
+                    DEPARTURE_DT2: { required: true, dateFormat: true, dateMin: { maxDate: '#ARRIVAL_DT2' } },
+                    ARRIVAL_DT2: { required: true, dateFormat: true, dateMax: { minDate: '#DEPARTURE_DT2' } },
+                    ARRIVAL_FLIGHT: { maxlength: 10 },
+                    ARRIVAL_FLIGHT2: { maxlength: 10},
+                    DEPARTURE_FLIGHT: { maxlength: 10 },
+                    DEPARTURE_FLIGHT2: { maxlength: 10 },
+                    COUNTRY: { required: true },
+                    COUNTRY_ID: {
+                        required: function () {
+                            return $("#COUNTRY_OTHER").is(':checked')
+                        }
+                    },
+                    COUNTRY2: { required: true },
+                    COUNTRY_ID2: {
+                        required: function () {
+                            return $("#COUNTRY_OTHER2").is(':checked')
+                        }
+                    },
+                    HAS_FLU: { required: true },
+                    HAS_FLU2: { required: true },
+                    COMPANION_NAME1: { maxlength: 100 },
+                    COMPANION_NAME2: { maxlength: 100 },
+                    COMPANION_NAME3: { maxlength: 100 },
+                    TEMPERATURE: {
+                        number: true, min: 33, max: 45,
+                        required: function () {
+                            return $("input[name='HAS_FLU']:checked").val() == "1"
+                        }
+                    },
+                    CLOSE_PATIENT_DETAIL: {
+                        maxlength: 500,
+                        required: function () {
+                            return $("input[name='CLOSE_PATIENT_FLAG']:checked").val() == "true"
+                        }
+                    },
+                     SYMTOMS_OTHER_TEXT: {
+                        maxlength: 200,
+                        required: function () {
+                             return $("input.custom-require-disable1").prop("checked") == true;
+                        }
+                    },
+                      SYMTOMS_OTHER_TEXT_OTHER: {
+                        maxlength: 200,
+                        required: function () {
+                              return $("input.custom-require-disable2").prop("checked") == true;
+                        }
+                    },
+                     SYMTOMS2_OTHER_TEXT: {
+                        maxlength: 200,
+                        required: function () {
+                             return $("input.custom-require-disable3").prop("checked") == true;
+                        }
+                    }
+                },
+                messages: {
+                    DEPARTURE_DT: { dateMin: "วันที่เดินทางออก ห้ามมากกว่าวันที่เดินทางกลับ" },
+                    ARRIVAL_DT: { dateMax: "วันที่เดินทางกลับ ห้ามน้อยกว่าวันที่เดินทางไป" },
+                    DEPARTURE_DT2: { dateMin: "วันที่เดินทางออก ห้ามมากกว่าวันที่เดินทางกลับ" },
+                    ARRIVAL_DT2: { dateMax: "วันที่เดินทางกลับ ห้ามน้อยกว่าวันที่เดินทางไป" },
+                },
+                submitHandler: function (form) {
+                    globalFunction.confirm({
+                        message: 'ต้องการบันทึกข้อมูล ?',
+                        okCallback: function () {
+                            globalFunction.showLoading("submit");
+
+                            // Get form
+                            var form = $('#form')[0];
+                            // Create an FormData object
+                            var data = new FormData(form);
+
+                            $.ajax({
+                                url: $("#form").attr('action'),
+                                type: "POST",
+                                data: data, //for file
+                                processData: false, //for file
+                                contentType: false, //for file
+                                success: function (result) {
+                                    globalFunction.hideLoading("submit");
+                                    if (result.success == true) {
+                                        $("#dateText").text(result.date);
+                                        $("#thankyouModal").modal('show');
+                                    } else {
+                                        if (result.code == -1) {
+                                            globalFunction.alert({
+                                                message: "Session หมดอายุ กรุณาเข้าสู่ระบบอีกครั้ง",
+                                                callback: function () {
+                                                    window.location.href = "@Url.Action("Login","Home")";
+                                                },
+                                            });
+                                        } else if (result.code == 1) {
+                                            globalFunction.alert({ type: "error", message: result.message });
+                                        } else {
+                                            globalFunction.alert({ type: "error", message: "เกิดข้อผิดพลาด" });
+                                        }
+                                    }
+                                },
+                                error: function (e) {
+                                    globalFunction.hideLoading("submit");
+                                    globalFunction.alert({ type: "error", message: "เกิดข้อผิดพลาด" });
+                                }
+                            });
+                        }
+                    });
+
+
+                    return false;
+                }
+              });
+
+            $("#COUNTRY_ID,#COUNTRY_ID2,#COMPANION_RELATION1,#COMPANION_RELATION2,#COMPANION_RELATION3").select2({ allowClear: true, placeholder: '-- กรุณาเลือก --' });
+
+            $(".date-calendar").datepicker({
+                dateFormat: "dd/mm/yy",
+                language: "th-th",
+                autoclose: true,
+                todayHighlight: true,
+                todayBtn: false,
+                clearBtn: true,
+                endDate: '0d'
+            });
+
+            $('.date-calendar').datepicker().on('hide', function (e) {
+                // `e` here contains the extra attributes
+                $('#DEPARTURE_DT').valid()
+                $('#ARRIVAL_DT').valid()
+                $('#DEPARTURE_DT2').valid()
+                $('#ARRIVAL_DT2').valid()
+            });
+
+            $("input[name='REPORTERS']").change(function () {
+                let ischecked = $(this).is(':checked')
+                let v = $(this).val()
+                if (ischecked) {
+                    if (v == 1)
+                        $('#emp').show()
+
+                    if (v == 2)
+                        $('#closer').show()
+                } else {
+                    if (v == 1)
+                        $('#emp').hide()
+
+                    if (v == 2)
+                        $('#closer').hide()
+                }
+            });
+
+            $("input[name='SYMTOMS']").change(function () {
+                let ischecked = $(this).is(':checked');
+                let v = $(this).val();
+                var inputList = $("input[name='SYMTOMS']");
+                if (ischecked) {
+                    if (v == 99) {
+                        $.each(inputList, function (index, eachInput) {
+                            if ($(eachInput).prop("checked") == false) {
+                                $(eachInput).prop('checked', false);
+                                $(eachInput).prop('disabled', true);
+                            }
+                        });
+                    } else {
+                        $(inputList).last().prop('checked', false);
+                        $(inputList).last().prop('disabled', true);
+                    }
+                } else {
+                    if (v == 99) {
+                        $.each(inputList, function (index, eachInput) {
+                            if ($(eachInput).val() != 99) {
+                                $(eachInput).prop('disabled', false);
+                            }
+                        });
+                    } else {
+                        let cnt = $('input[name="SYMTOMS"]:checked').length;
+                        if (cnt == 0) {
+                            $(inputList).last().prop('disabled', false);
+                        }
+                    }
+                }
+            });
+
+            $("input[name='SYMTOMS_OTHER']").change(function () {
+                let ischecked = $(this).is(':checked');
+                let v = $(this).val();
+                var inputList = $("input[name='SYMTOMS_OTHER']");
+                if (ischecked) {
+                    if (v == 99) {
+                        $.each(inputList, function (index, eachInput) {
+                            if ($(eachInput).prop("checked") == false) {
+                                $(eachInput).prop('checked', false);
+                                $(eachInput).prop('disabled', true);
+                            }
+                        });
+                    } else {
+                        $(inputList).last().prop('checked', false);
+                        $(inputList).last().prop('disabled', true);
+                    }
+                } else {
+                    if (v == 99) {
+                        $.each(inputList, function (index, eachInput) {
+                            if ($(eachInput).val() != 99) {
+                                $(eachInput).prop('disabled', false);
+                            }
+                        });
+                    } else {
+                        let cnt = $('input[name="SYMTOMS_OTHER"]:checked').length;
+                        if (cnt == 0) {
+                            $(inputList).last().prop('disabled', false);
+                        }
+                    }
+                }
+            });
+
+            $("input[name='SYMTOMS2']").change(function () {
+                let ischecked = $(this).is(':checked');
+                let v = $(this).val();
+                 var inputList = $("input[name='SYMTOMS2']");
+                if (ischecked) {
+                    if (v == 99) {
+                        $.each(inputList, function (index, eachInput) {
+                            if ($(eachInput).prop("checked") == false) {
+                                $(eachInput).prop('checked', false);
+                                $(eachInput).prop('disabled', true);
+                            }
+                        });
+                    } else {
+                        $(inputList).last().prop('checked', false);
+                        $(inputList).last().prop('disabled', true);
+                    }
+                } else {
+                    if (v == 99) {
+                        $.each(inputList, function (index, eachInput) {
+                            if ($(eachInput).val() != 99) {
+                                $(eachInput).prop('disabled', false);
+                            }
+                        });
+                    } else {
+                        let cnt = $('input[name="SYMTOMS2"]:checked').length;
+                        if (cnt == 0) {
+                            $(inputList).last().prop('disabled', false);
+                        }
+                    }
+                }
+            });
+
+            $("input[name='HAS_FLU']").change(function () {
+                let v = $(this).val()
+                if (v == 1) {
+                    $('#TEMPERATURE').prop('disabled', false)
+                } else {
+                    $('#TEMPERATURE').prop('disabled', true)
+                }
+                $('#TEMPERATURE').valid()
+            })
+
+            $("input[name='CLOSE_PATIENT_FLAG']").change(function () {
+                let v = $(this).val()
+                if (v == 'true') {
+                    $('#CLOSE_PATIENT_DETAIL').prop('disabled', false)
+                } else {
+                    $('#CLOSE_PATIENT_DETAIL').prop('disabled', true)
+                }
+                $('#CLOSE_PATIENT_DETAIL').valid()
+            })
+
+            $("input.custom-require-disable1").change(function () {
+                if ($(this).prop("checked") == true) {
+                    $('#SYMTOMS_OTHER_TEXT').prop('disabled', false);
+                } else {
+                    $('#SYMTOMS_OTHER_TEXT').prop('disabled', true);
+                }
+                $('#SYMTOMS_OTHER_TEXT').valid();
+            });
+
+              $(".custom-require-disable2").change(function () {
+                if ($(this).prop("checked") == true) {
+                    $('#SYMTOMS_OTHER_TEXT_OTHER').prop('disabled', false);
+                } else {
+                    $('#SYMTOMS_OTHER_TEXT_OTHER').prop('disabled', true);
+                }
+                  $('#SYMTOMS_OTHER_TEXT_OTHER').valid();
+              });
+
+              $(".custom-require-disable3").change(function () {
+                if ($(this).prop("checked") == true) {
+                    $('#SYMTOMS2_OTHER_TEXT').prop('disabled', false);
+                } else {
+                    $('#SYMTOMS2_OTHER_TEXT').prop('disabled', true);
+                }
+                  $('#SYMTOMS2_OTHER_TEXT').valid();
+            });
+
+            $("input[name='REPORTERS']").trigger('change');
+            $("input[name='SYMTOMS']").trigger('change');
+            $("input[name='SYMTOMS_OTHER']").trigger('change');
+            $("input[name='SYMTOMS2']").trigger('change');
+            $("input[name='COUNTRY']").trigger('change');
+            $("input[name='COUNTRY2']").trigger('change');
+
+          
+
+            $("#COUNTRY_OTHER").change(function () {
+                let ischecked = $(this).is(':checked')
+                if (ischecked) {
+                    $("#COUNTRY_ID").prop('disabled', false)
+                } else {
+                    $("#COUNTRY_ID").val('').trigger('change')
+                    $("#COUNTRY_ID").prop('disabled', true)
+                }
+                $("#COUNTRY_ID").valid()
+            })
+
+            $("#COUNTRY_OTHER2").change(function () {
+                let ischecked = $(this).is(':checked')
+                if (ischecked) {
+                    $("#COUNTRY_ID2").prop('disabled', false)
+                } else {
+                    $("#COUNTRY_ID2").val('').trigger('change')
+                    $("#COUNTRY_ID2").prop('disabled', true)
+                }
+                $("#COUNTRY_ID2").valid()
+            })
+
+            $("#COUNTRY_ID").change(function () {
+                $(this).valid()
+            })
+
+            $("#COUNTRY_ID2").change(function () {
+                $(this).valid()
+            })
+
+            $("#COUNTRY_OTHER").trigger('change')
+            $("#COUNTRY_OTHER2").trigger('change')
+
+            $("#closeBtn").on('click', function () {
+                window.location.href = "@Url.Action("Index", "Home")";
+            });
+
+        });
+    </script>
+}

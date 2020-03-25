@@ -1,0 +1,165 @@
+﻿<script type="text/javascript">
+
+    globalVar = {
+        @*menu: {
+            UM: '@Resources.Menu.UM',
+            UM001: '@Resources.Menu.UM001',
+            UM002: '@Resources.Menu.UM002',
+            UM003: '@Resources.Menu.UM003',
+            UM004: '@Resources.Menu.UM004',
+            UM005: '@Resources.Menu.UM005',
+            TK: '@Resources.Menu.TK',
+            HIS: '@Resources.Menu.HIS',
+            AL: '@Resources.Menu.AL',
+            IoT: '@Resources.Menu.IoT',
+            DM: '@Resources.Menu.DM',
+            MC: '@Resources.Menu.MC',
+            DM001: '@Resources.Menu.DM001',
+            DM002: '@Resources.Menu.DM002',
+            DM003: '@Resources.Menu.DM003',
+            DM004: '@Resources.Menu.DM004',
+            IoT001: '@Resources.Menu.IoT001',
+            IoT002: '@Resources.Menu.IoT002',
+        }*@
+    };
+
+    globalFunction = {
+        alert: function (settings) {
+            //default parameter
+            var defaultParam = {
+                title: '<i class="fa fa-info-circle" style="color:#1B95E0"></i> ' + "ข้อความจากระบบ",
+                message: "",
+                callback: null,
+                size: "",
+                closeButton: true,
+            };
+            if (settings.type == "warning") {
+                settings.title = '<i class="fa fa-exclamation-triangle" style="color:#F0AC4D"></i> ' + "ข้อความแจ้งเตือน";
+            } else if (settings.type == "error") {
+                settings.title = '<i class="fa fa-exclamation-triangle" style="color:#D9524E"></i> ' + "ข้อความแจ้งเตือน";
+            }
+
+
+            $.extend(defaultParam, settings);
+
+            //show dialog
+            bootbox.dialog({
+                title: defaultParam.title,
+                message: defaultParam.message,
+                size: defaultParam.size,
+                closeButton: defaultParam.closeButton,
+                buttons: {
+                    cancel: {
+                        label: "ปิด",
+                        className: "btn-default btn-font-20",
+                        callback: function () {
+                            if ($.isFunction(defaultParam.callback)) {
+                                defaultParam.callback();
+                            }
+                        }
+                    }
+                }
+            });
+        },
+        confirm: function (settings) {
+            //default parameter
+            var defaultParam = {
+                title: '<i class="fa fa-question-circle" style="color:#1B95E0"></i> ' + "ยืนยัน",
+                message: "",
+                okCallback: null,
+                cancelCallBack: null
+            };
+            if (settings.type == "warning") {
+                settings.title = '<i class="fa fa-exclamation-triangle" style="color:#F0AC4D"></i> ' + "ยืนยัน";
+            } else if (settings.type == "error") {
+                settings.title = '<i class="fa fa-exclamation-triangle" style="color:#D9524E"></i> ' + "ยืนยัน";
+            }
+
+            $.extend(defaultParam, settings);
+
+            bootbox.dialog({
+                title: defaultParam.title,
+                message: defaultParam.message,
+                buttons: {
+                    ok: {
+                        label: settings.okLabel || "ตกลง",
+                        className: "btn-warning btn-font-20",
+                        callback: function () {
+                            if ($.isFunction(defaultParam.okCallback)) {
+                                defaultParam.okCallback();
+                            }
+                        }
+                    },
+                    cancel: {
+                        label: settings.cancelLabel || "ยกเลิก",
+                        className: "btn-default btn-font-20",
+                        callback: function () {
+                            if ($.isFunction(defaultParam.cancelCallBack)) {
+                                defaultParam.cancelCallBack();
+                            }
+                        }
+                    }
+                }
+            });
+        },
+        hideDialog: function () {
+            bootbox.hideAll();
+        },
+        showLoading: function (processname) {
+            //require geoloading
+            $.fn.GeoLoading.showLoading(processname);
+        },
+        hideLoading: function (processname) {
+            //require geoloading
+            $.fn.GeoLoading.hideLoading(processname);
+        },
+        serializeObject: function ($form) {
+
+            var form = {};
+            $.each($form.serializeArray(), function (i, field) {
+                //กรณียังไม่เคยมีค่าจะสร้าง prop ใหม่
+                if (form[field.name] == undefined) {
+                    form[field.name] = field.value || "";
+                }
+                else {
+                    //กรณี checkbox ชื่อ prop จะเป็นชื่อเดียวกันต้องสร้างเป็น array
+                    if (!$.isArray(form[field.name])) {
+                        var tmp = form[field.name];
+                        form[field.name] = [tmp];
+                    }
+
+                    form[field.name].push(field.value || "");
+                }
+            });
+
+            return form;
+        },
+        objectToFormInput: function (obj, $form) {
+            //แปลงค่า จาก object เป็น form input
+            //<object> json : obj ที่จะแปลงค่า
+            //<jQueryObject> $form : form ที่จะใส่ tag input
+            for (var prop in obj) {
+
+                CreateInput(prop, obj[prop], $form);
+            }
+
+            function CreateInput(name, obj) {
+                var type = $.type(obj);
+
+                switch (type) {
+                    case "number":
+                    case "boolean":
+                    case "string":
+                        $('<input>').attr({ 'type': 'hidden', 'name': name }).val(obj).appendTo($form);
+                        break;
+                    default:
+                        for (var item in obj) {
+                            CreateInput(name + '[' + item + ']', obj[item]);
+                        }
+                        break;
+                }
+            }
+        }
+
+    };
+</script>

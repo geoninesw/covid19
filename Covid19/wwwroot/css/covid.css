@@ -1,0 +1,190 @@
+﻿@font-face {
+    font-family: 'Kanit';
+    src: url('fonts/Kanit-Light.ttf') format("truetype");
+}
+
+body {
+    font-family: 'Kanit';
+    /*font-size: 14px;*/
+    padding-top: 50px;
+    padding-bottom: 20px;
+    height: 100%;
+}
+
+/* Set padding to keep content from hitting the edges */
+.body-content {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Override the default bootstrap behavior where horizontal description lists 
+   will truncate terms that are too long to fit in the left column 
+*/
+.dl-horizontal dt {
+    white-space: normal;
+}
+
+/* Set width on the form input elements since they're 100% wide by default */
+input,
+select,
+textarea {
+    /*max-width: 280px;*/
+}
+
+.container-login {
+    height: 100%;
+    /*background-color: #1d374a;*/
+    background: url(../Resources/bg_login.jpg) no-repeat;
+    background-size: cover;
+}
+
+.error {
+    color: red
+}
+
+.light-on {
+    color: red;
+}
+
+.light-on-2 {
+    color: yellowgreen;
+}
+
+@-webkit-keyframes blinker {
+    50% {
+        opacity: 0;
+    }
+}
+
+.blink {
+    color: red;
+    animation: blinker 1s linear infinite;
+}
+
+.blink-2 {
+    color: yellowgreen;
+    animation: blinker 1s linear infinite;
+}
+
+.navbar {
+    border-bottom: solid 5px #337ab7
+}
+
+.navbar-inverse .navbar-nav > .active > a, .navbar-inverse .navbar-nav > .active > a:hover, .navbar-inverse .navbar-nav > .active > a:focus {
+    background-color: #337ab7;
+}
+
+
+.box-login-left {
+    background-image: url(../Resources/bg-left.jpg);
+    background-size: cover;
+    /*border-radius: 5px;*/
+    border-radius: 5px 0 0 5px;
+    padding: 30px;
+    min-height: 363px;
+    box-shadow: 8px 8px 8px -8px #111
+}
+
+.box-login-right {
+    background: rgba(237, 237, 237, 0.8);
+    /*border-radius: 5px;*/
+    border-radius: 0 5px 5px 0;
+    padding: 50px 50px 40px 50px;
+    /*margin-top: 20px;*/
+    box-shadow: 8px 8px 8px -8px #111
+}
+
+@media (max-width: 767px) {
+    .box-login-right {
+        border-radius: 5px;
+        padding: 20px;
+    }
+}
+
+.col-form-label.require > i {
+    color: red;
+    font-size: 10px;
+}
+
+th.clear {
+    text-align: center
+}
+
+th.datepicker-switch {
+    text-align: center
+}
+
+.body-login {
+    background: linear-gradient(-45deg, #1d374a, #264051, #72828F, #1d374a);
+    background-size: 400% 400%;
+    -webkit-animation: Gradient 20s ease infinite;
+    -moz-animation: Gradient 20s ease infinite;
+    animation: Gradient 20s ease infinite;
+}
+
+@-webkit-keyframes Gradient {
+    0% {
+        background-position: 0% 50%
+    }
+
+    50% {
+        background-position: 100% 50%
+    }
+
+    100% {
+        background-position: 0% 50%
+    }
+}
+
+@-moz-keyframes Gradient {
+    0% {
+        background-position: 0% 50%
+    }
+
+    50% {
+        background-position: 100% 50%
+    }
+
+    100% {
+        background-position: 0% 50%
+    }
+}
+
+@keyframes Gradient {
+    0% {
+        background-position: 0% 50%
+    }
+
+    50% {
+        background-position: 100% 50%
+    }
+
+    100% {
+        background-position: 0% 50%
+    }
+}
+
+.img-preview {
+    height: 100px;
+    border: solid #808080 1px;
+    margin-right: 5px
+}
+
+.pip {
+    display: inline-block;
+    margin: 10px 10px 0 0;
+}
+
+.remove {
+    display: block;
+    background: #444;
+    border: 1px solid black;
+    color: white;
+    text-align: center;
+    cursor: pointer;
+}
+
+    .remove:hover {
+        background: white;
+        color: black;
+    }

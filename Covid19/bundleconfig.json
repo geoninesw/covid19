@@ -1,0 +1,36 @@
+﻿[
+  {
+    "outputFileName": "wwwroot/css/covid.min.css",
+    "inputFiles": [
+      "wwwroot/css/covid.css",
+      "wwwroot/lib/select2/dist/css/select2.css"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/js/jquery-validation.min.js",
+    "inputFiles": [
+      "wwwroot/lib/jquery-validation/dist/jquery.validate.js",
+      "wwwroot/lib/jquery-validation/dist/additional-methods.js"
+    ],
+    "minify": {
+      "enabled": false,
+      "renameLocals": true
+    },
+    "sourceMap": false
+  },
+  {
+    "outputFileName": "wwwroot/js/core.min.js",
+    "inputFiles": [
+      "wwwroot/js/Geo9/core.js",
+      "wwwroot/js/Geo9/loading.js",
+      "wwwroot/js/Geo9/custom-validator.js",
+      "wwwroot/js/Geo9/custom-validator-messages_th.js",
+      "wwwroot/js/Geo9/config.js"
+    ],
+    "minify": {
+      "enabled": false,
+      "renameLocals": true
+    },
+    "sourceMap": false
+  }
+]

@@ -1,0 +1,698 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
+}
+
+<link href="~/lib/daterangepicker/daterangepicker.css" rel="stylesheet" />
+
+<style>
+    body {
+        color: #1d374a;
+    }
+
+    .time-frame {
+        width: 100%;
+    }
+
+        .time-frame > span {
+            width: 100%;
+            text-align: center;
+        }
+
+    #date-part {
+        font-size: 1.2em;
+    }
+
+    #time-part {
+        font-size: 1.2em;
+    }
+
+    .clickable-row:hover {
+        cursor: pointer
+    }
+
+    .container-fluid {
+        padding: 0;
+        margin: 0;
+    }
+</style>
+<div class="row">
+    <div class="col-md-4" style="background:#656392; padding:30px; color:#fff; background-image:url(@Url.Content("~/images/covid-bg.png"))">
+        <h2><b>รายงานสรุปข้อมูลสุขภาพ<br />เฝ้าระวัง COVID-19</b></h2>
+        <hr />
+        <div class="row">
+            <div class="col-md-12">
+                <h4><i class="fa fa-user fa-2x"></i> ผู้รายงาน <span id="showReportNum" style="font-size:24px; font-weight:bold">0</span> คน</h4>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <h4 style="color:#FFAF10"><i class="fa fa-plane fa-2x"></i> ผู้ที่เดินทางไปต่างประเทศ  <span id="showTotalCon1" style="font-size:24px; font-weight:bold">0</span> คน<br /><p style="margin-left:35px; color:#FFAF10" class="small">(รวมบุคคลใกล้ชิด)</p></h4>
+
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8" style="padding:30px;">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="time-frame">
+                    <span id='date-part'></span>&nbsp;&nbsp;&nbsp;<span id='time-part'></span>
+                </div>
+            </div>
+            <div class="col-md-6 text-right">
+                <div class="date" style="cursor: pointer;width:200px; display:inline;">
+                    <input type="text" id="datefilter" name="datefilter" value="" class="form-control" style="cursor: pointer;width:200px; display:inline; height:28px;" />
+                    <input type="hidden" id="STARTDT" name="STARTDT" class="form-control" />
+                    <input type="hidden" id="ENDDT" name="ENDDT" class="form-control" />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-8">
+                <div id="container-4" style="height: 250px;"></div>
+            </div>
+            <div class="col-md-4" style="padding-top:100px">
+                <table class="table text-white table-hover" id="container4table">
+                    <tbody style="font-size:16px;"></tbody>
+                </table>
+                <span class="text-right">** คลิกรายการเพื่อดูรายชื่อ **</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 " style="border-right:solid 1px #1d374a; padding:0">
+        <div class="row">
+            <div class="col-md-12 text-center" style="background:#e57373; color:#fff">
+                <h3>ผู้รายงาน</h3>
+            </div>
+            <div class="col-md-12" style="padding:30px 30px 0 30px;">
+                <div id="container-5" style="height: 250px;"></div>
+            </div>
+            <div class="col-md-12" style=" padding:30px 30px 0 30px;">
+                <div id="container-2" style="height: 250px;"></div>
+                <hr />
+            </div>
+        </div>
+
+    </div>
+    <div class="col-md-6" style="padding:0">
+        <div class="row">
+            <div class="col-md-12 text-center" style="background:#f7ba51;">
+                <h3>บุคคลใกล้ชิด (เดินทางไปต่างประเทศ)</h3>
+            </div>
+            <div class="col-md-12" style="background:#eff1f2;padding:30px 30px 0 30px;">
+                <div id="container-8" style="height: 250px;"></div>
+            </div>
+            <div class="col-md-12" style="background:#eff1f2; padding:30px 30px 0 30px;">
+                <div id="container-6" style="height: 250px;"></div>
+                <hr />
+            </div>
+        </div>
+    </div>
+</div>
+
+<br/>
+
+<div class="row">
+    <div class="col-md-12 text-center">
+        <button type="button" class="btn btn-default title-default-small" onclick="window.location.href='@Url.Action("Index", "Home")'"><i class="fa fa-chevron-circle-left"></i> ย้อนกลับ</button>
+    </div>
+</div>
+
+@section scripts {
+    <script src="~/lib/highcharts/code/highcharts.js"></script>
+    <script src="~/lib/moment-with-locales/moment-with-locales.min.js"></script>
+    <script src="~/lib/daterangepicker/daterangepicker.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            var startDate1 = moment().subtract(29, 'days').startOf('day');
+            var endDate1 = moment().endOf('day');
+
+            $('#STARTDT').val(startDate1.format('DD/MM/YYYY'));
+            $('#ENDDT').val(endDate1.format('DD/MM/YYYY'));
+            var pie1, pie2, pie3, bar1, bar2, bar3, bar4, bar5, bar6;
+
+            var currentYear = moment().year() + 543;
+
+            var interval = setInterval(function () {
+                var momentNow = moment().locale('th');
+                $('#date-part').html(momentNow.format('dddd DD MMMM') + ' ' + currentYear);
+                $('#time-part').html(momentNow.format('HH:mm:ss'));
+            }, 100);
+
+            $('input[name="datefilter"]').daterangepicker({
+                startDate: startDate1,
+                endDate: endDate1,
+                showDropdowns: true,
+                timePicker: true,
+                timePicker24Hour: true,
+                maxSpan: {
+                    "year": 1
+                },
+                locale: {
+                    "format": "DD/MM/YYYY",
+                    cancelLabel: 'Clear'
+                },
+                ranges: {
+                    'Today': [moment().startOf('day'), moment().endOf('day')],
+                    'Yesterday': [moment().subtract(1, 'days').startOf('day'), moment().subtract(1, 'days').endOf('day')],
+                    'Last 7 Days': [moment().subtract(6, 'days').startOf('day'), moment().endOf('day')],
+                    'Last 30 Days': [moment().subtract(29, 'days').startOf('day'), moment().endOf('day')],
+                    'This Month': [moment().startOf('month'), moment().endOf('month')],
+                    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                }
+            }, function (start, end, label) {
+                $('#STARTDT').val(start.format('DD/MM/YYYY'));
+                $('#ENDDT').val(end.format('DD/MM/YYYY'));
+                Getdata();
+            });
+
+            $('input[name="datefilter"]').on('cancel.daterangepicker', function (ev, picker) {
+                $(this).val('');
+            });
+
+            Getdata();
+            function Getdata() {
+                globalFunction.showLoading("branchChange");
+                $.ajax({
+                    url: "@Url.Action("GetCovid19Daily")",
+                    type: "POST",
+                    data: {
+                        startDt: $('#STARTDT').val(),
+                        endDt: $('#ENDDT').val()
+                    },
+                    success: function (result) {
+                        if (result.success == true) {
+                            if (result.data && result.data.length > 0) {
+                                $("#showReportNum").text(result.data[0].REPORT_NUM);
+                            } else {
+                                $("#showReportNum").text("0");
+                            }
+
+                            var d1Data = [];
+                            $.each(result.data, function (i, data) {
+                                d1Data.push([data.LABEL, data.AMOUNT]);
+                            });
+
+                            updateContainer1Detail(d1Data);
+                        }
+                    },
+                    error: function (e) {
+                        updateContainer1Detail([]);
+                    }
+                });
+
+                $.ajax({
+                    url: "@Url.Action("GetCovid19DailyCountry")",
+                    type: "POST",
+                    data: {
+                        startDt: $('#STARTDT').val(),
+                        endDt: $('#ENDDT').val()
+                    },
+                    success: function (result) {
+                        if (result.success == true) {
+
+                            var d2DataType1 = [];
+                            var d2DataType2 = [];
+                            $.each(result.data, function (i, data) {
+                                if (data.PERSON_TYPE_ID == 1) {
+                                    d2DataType1.push([data.LABEL, data.AMOUNT]);
+                                } else if (data.PERSON_TYPE_ID == 2) {
+                                    d2DataType2.push([data.LABEL, data.AMOUNT]);
+                                }
+                            });
+                            updateBar1(d2DataType1);
+                            updateBar4(d2DataType2);
+                        }
+                    },
+                    error: function (e) {
+                        updateBar1([]);
+                        updateBar4([]);
+                    }
+                });
+
+                $.ajax({
+                    url: "@Url.Action("GetCovid19DailyFlu")",
+                    type: "POST",
+                    data: {
+                        startDt: $('#STARTDT').val(),
+                        endDt: $('#ENDDT').val()
+                    },
+                    success: function (result) {
+                        if (result.success == true) {
+
+                            var d4DataType1Tbl = [];
+                            var d4DataType1 = [];
+                            $.each(result.data, function (i, data) {
+                                if (data.PERSON_TYPE_ID == 1) {
+                                    d4DataType1Tbl.push([data.LABEL, data.AMOUNT]);
+                                    if (data.LABEL === 'ไม่มีไข้') {
+                                        d4DataType1.push({ 'name': data.LABEL, 'y': data.AMOUNT, 'color': '#8BD8F4' });
+                                    } else {
+                                        d4DataType1.push({ 'name': data.LABEL, 'y': data.AMOUNT, 'color': '#F5AAB9' });
+                                    }
+                                }
+                            });
+                            updatePie2(d4DataType1);
+                            updateContainer4Detail(d4DataType1Tbl);
+                        }
+                    },
+                    error: function (e) {
+                        updatePie2([]);
+                        updateContainer4Detail([]);
+                    }
+                });
+
+                $.ajax({
+                    url: "@Url.Action("GetCovid19DailySymtom")",
+                    type: "POST",
+                    data: {
+                        startDt: $('#STARTDT').val(),
+                        endDt: $('#ENDDT').val()
+                    },
+                    success: function (result) {
+                        if (result.success == true) {
+
+                            var d5DataType1 = [];
+                            var d5DataType2 = [];
+                            $.each(result.data, function (i, data) {
+                                if (data.PERSON_TYPE_ID == 1) {
+                                    d5DataType1.push([data.LABEL, data.AMOUNT]);
+                                } else if (data.PERSON_TYPE_ID == 2) {
+                                    d5DataType2.push([data.LABEL, data.AMOUNT]);
+                                }
+                            });
+                            updateBar3(d5DataType1);
+                            updateBar5(d5DataType2);
+                        }
+                    },
+                    error: function (e) {
+                        updateBar3([]);
+                        updateBar5([]);
+                    }
+                });
+                globalFunction.hideLoading("branchChange");
+            }
+
+            function updateContainer1Detail(d) {
+                let total = 0
+                d.forEach(function (element) {
+                    total += element[1]
+                });
+
+                $("#showTotalCon1").text(total);
+
+            }
+
+            function updateContainer4Detail(d) {
+                $("#container4table tbody").empty();
+                //let total = 0
+                d.forEach(function (element) {
+                    let icon = ''
+                    let flag = ''
+                    if (element[0] === 'ไม่มีไข้') {
+                        icon = '<i class="fa fa-circle" style="color:#8BD8F4"></i> '
+                        flag =  '0'
+                    } else {
+                        icon = '<i class="fa fa-circle" style="color:#F5AAB9"></i> '
+                        flag =  '1'
+                    }
+                    $("#container4table tbody").append("<tr title='คลิกเพื่อดูรายชื่อ' class='clickable-row' data-flag='" + flag + "'><td class='p-0'>" + icon + element[0] + "</td><td class='p-0'>" + element[1] + " คน</td></tr>");
+                    //total += element[1]
+                });
+
+
+                $(".clickable-row").click(function () {
+                    let flag = $(this).data("flag")
+                    window.location.href = '@Url.Action("Index", "RptCovidTravel")/' + flag;
+                });
+            }
+
+            function updatePie2(d) {
+                if (pie2) {
+                    pie2.series[0].update({
+                        data: d
+                    });
+                } else {
+                    pie2 = Highcharts.chart('container-4', {
+                        chart: {
+                            type: 'pie',
+                            style: {
+                                fontFamily: 'Kanit',
+                                fontSize: '16px',
+                            },
+                            backgroundColor: 'transparent'
+                        },
+                        title: {
+                            text: 'สุขภาพของผู้รายงาน'
+                        },
+                        subtitle: {
+                            text: ''
+                        },
+                        plotOptions: {
+                            pie: {
+                                shadow: false,
+                                borderWidth: 0,
+                                allowPointSelect: true,
+                                cursor: 'pointer',
+                                dataLabels: {
+                                    distance: -20,
+                                    enabled: true,
+                                    formatter: function () {
+                                        return '<div class="datalabel">' + this.point.percentage.toFixed(0) + '%' + '</div>';
+                                    },
+                                    style: {
+                                        fontSize: '16px',
+                                    }
+                                }
+                            }
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        legend: {
+                            enabled: false,
+                            itemStyle: {
+                                //color: '#FFE',
+                                fontSize: '16px',
+                                fontWeight: "normal"
+                            }
+                        },
+                        tooltip: {
+                            headerFormat: '<span style="font-size: 18px">{point.key}</span><br/>',
+                            valueSuffix: ' คน',
+                            style: {
+                                fontSize: '16px'
+                            }
+                        },
+                        series: [{
+                            name: 'จำนวน',
+                            data: d,
+                            size: '100%',
+                            innerSize: '50%',
+                            showInLegend: true,
+                        }],
+                    });
+                }
+            }
+
+            function updateBar1(d) {
+                if (bar1) {
+                    bar1.series[0].update({
+                        data: d
+                    });
+                } else {
+                    bar1 = Highcharts.chart('container-2', {
+                        chart: {
+                            type: 'bar',
+                            style: {
+                                fontFamily: 'Kanit',
+                                fontSize: '16px',
+                            },
+                            backgroundColor: 'transparent'
+                        },
+                        colors: ['#8BD8F4', '#F5AAB9', '#75C8AE', '#E7B2E9', '#FFB384', '#F5E589', '#BBD4C2'],
+                        title: {
+                            text: 'ประเทศที่เดินทาง (10 อันดับแรก)'
+                        },
+                        subtitle: {
+                            text: ''
+                        },
+                        xAxis: {
+                            type: 'category',
+                            labels: {
+                                style: { fontSize: '14px' }
+                            },
+                        },
+                        yAxis: {
+                            min: 0,
+                            title: {
+                                text: ''
+                            },
+                            labels: {
+                                overflow: 'justify',
+                                style: { fontSize: '14px' }
+                            },
+                            allowDecimals:false
+                        },
+                        tooltip: {
+                            headerFormat: '<span style="font-size: 18px">{point.key}</span><br/>',
+                            valueSuffix: ' คน',
+                            style: {
+                                fontSize: '16px'
+                            }
+                        },
+                        plotOptions: {
+                            bar: {
+                                dataLabels: {
+                                    enabled: true
+                                }
+                            }
+                        },
+                        legend: {
+                            enabled: false
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        series: [{
+                            name: 'จำนวน',
+                            data: d,
+                            colorByPoint: true,
+                            states: {
+                                hover: {
+                                    color: '#1d374a'
+                                }
+                            },
+                        }]
+                    });
+                }
+            }
+
+
+            function updateBar3(d) {
+                if (bar3) {
+                    bar3.series[0].update({
+                        data: d
+                    });
+                } else {
+                    bar3 = Highcharts.chart('container-5', {
+                        chart: {
+                            type: 'bar',
+                            style: {
+                                fontFamily: 'Kanit',
+                                fontSize: '16px',
+                            },
+                            backgroundColor: 'transparent'
+                        },
+                        colors: ['#8BD8F4', '#F5AAB9', '#75C8AE', '#E7B2E9', '#FFB384', '#F5E589', '#BBD4C2'],
+                        title: {
+                            text: 'อาการของผู้รายงาน'
+                        },
+                        subtitle: {
+                            text: ''
+                        },
+                        xAxis: {
+                            type: 'category',
+                            labels: {
+                                style: { fontSize: '14px' }
+                            },
+                        },
+                        yAxis: {
+                            min: 0,
+                            title: {
+                                text: ''
+                            },
+                            labels: {
+                                overflow: 'justify',
+                                style: { fontSize: '14px' }
+                            },
+                            allowDecimals: false
+                        },
+                        tooltip: {
+                            headerFormat: '<span style="font-size: 18px">{point.key}</span><br/>',
+                            valueSuffix: ' คน',
+                            style: {
+                                fontSize: '16px'
+                            }
+                        },
+                        plotOptions: {
+                            bar: {
+                                dataLabels: {
+                                    enabled: true
+                                }
+                            }
+                        },
+                        legend: {
+                            enabled: false
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        series: [{
+                            name: 'จำนวน',
+                            data: d,
+                            colorByPoint: true,
+                            states: {
+                                hover: {
+                                    color: '#1d374a'
+                                }
+                            },
+                        }]
+                    });
+                }
+            }
+
+            function updateBar4(d) {
+                if (bar4) {
+                    bar4.series[0].update({
+                        data: d
+                    });
+                } else {
+                    bar4 = Highcharts.chart('container-6', {
+                        chart: {
+                            type: 'bar',
+                            style: {
+                                fontFamily: 'Kanit',
+                                fontSize: '16px',
+                            },
+                            backgroundColor: 'transparent'
+                        },
+                        colors: ['#8BD8F4', '#F5AAB9', '#75C8AE', '#E7B2E9', '#FFB384', '#F5E589', '#BBD4C2'],
+                        title: {
+                            text: 'ประเทศที่เดินทาง (10 อันดับแรก)'
+                        },
+                        subtitle: {
+                            text: ''
+                        },
+                        xAxis: {
+                            type: 'category',
+                            labels: {
+                                style: { fontSize: '14px' }
+                            },
+                        },
+                        yAxis: {
+                            min: 0,
+                            title: {
+                                text: ''
+                            },
+                            labels: {
+                                overflow: 'justify',
+                                style: { fontSize: '14px' }
+                            },
+                            allowDecimals: false
+                        },
+                        tooltip: {
+                            headerFormat: '<span style="font-size: 18px">{point.key}</span><br/>',
+                            valueSuffix: ' คน',
+                            style: {
+                                fontSize: '16px'
+                            }
+                        },
+                        plotOptions: {
+                            bar: {
+                                dataLabels: {
+                                    enabled: true
+                                }
+                            }
+                        },
+                        legend: {
+                            enabled: false
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        series: [{
+                            name: 'จำนวน',
+                            data: d,
+                            colorByPoint: true,
+                            states: {
+                                hover: {
+                                    color: '#1d374a'
+                                }
+                            },
+                        }]
+                    });
+                }
+            }
+
+            function updateBar5(d) {
+                if (bar5) {
+                    bar5.series[0].update({
+                        data: d
+                    });
+                } else {
+                    bar5 = Highcharts.chart('container-8', {
+                        chart: {
+                            type: 'bar',
+                            style: {
+                                fontFamily: 'Kanit',
+                                fontSize: '16px',
+                            },
+                            backgroundColor: 'transparent'
+                        },
+                        colors: ['#8BD8F4', '#F5AAB9', '#75C8AE', '#E7B2E9', '#FFB384', '#F5E589', '#BBD4C2'],
+                        title: {
+                            text: 'อาการของผู้เดินทาง'
+                        },
+                        subtitle: {
+                            text: ''
+                        },
+                        xAxis: {
+                            type: 'category',
+                            labels: {
+                                style: { fontSize: '14px' }
+                            },
+                        },
+                        yAxis: {
+                            min: 0,
+                            title: {
+                                text: ''
+                            },
+                            labels: {
+                                overflow: 'justify',
+                                style: { fontSize: '14px' }
+                            },
+                            allowDecimals: false
+                        },
+                        tooltip: {
+                            headerFormat: '<span style="font-size: 18px">{point.key}</span><br/>',
+                            valueSuffix: ' คน',
+                            style: {
+                                fontSize: '16px'
+                            }
+                        },
+                        plotOptions: {
+                            bar: {
+                                dataLabels: {
+                                    enabled: true
+                                }
+                            }
+                        },
+                        legend: {
+                            enabled: false
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        series: [{
+                            name: 'จำนวน',
+                            data: d,
+                            colorByPoint: true,
+                            states: {
+                                hover: {
+                                    color: '#1d374a'
+                                }
+                            },
+                        }]
+                    });
+                }
+            }
+
+        })
+    </script>
+}

@@ -1,0 +1,243 @@
+﻿
+@{
+    /**/
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
+}
+
+<style>
+    body {
+        color: #656392;
+    }
+
+    .btn-num {
+        width: 70px;
+        height: 70px;
+        font-size: 40px;
+        border-radius: 50%;
+        color: #656392;
+    }
+
+    .header {
+        /*padding: 10px 0 30px;*/
+        width: 100%;
+        height: 100%;
+        /*background-image: linear-gradient( #ffaa39, #ffaa39);*/
+    }
+
+    #ok {
+        background: #656392;
+        color: #fff;
+        border-color: #656392;
+    }
+
+    #form label.error {
+        margin-top: 1em;
+        font-size: 18px;
+    }
+</style>
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-6 col-sm-offset-3 text-center">
+            <div class="header">
+                <h3>เลขบัตรประจำตัวประชาชน/เลขบัตรพนักงาน</h3>
+                <form id="form" method="post" enctype="multipart/form-data">
+                    <input id="empNum" name="empNum" type="text" class="form-control input-lg text-center" readonly style="width: 300px; margin-left: auto; margin-right: auto; font-size: 30px" />
+                </form>
+                </div>
+
+            <div style="margin-top:20px">
+                <h3 id="error" class="error"></h3>
+                <button id="num1" class="btn btn-default btn-num" data-value="1">1</button>
+                <button id="num2" class="btn btn-default btn-num" data-value="2">2</button>
+                <button id="num3" class="btn btn-default btn-num" data-value="3">3</button><br /><br />
+                <button id="num4" class="btn btn-default btn-num" data-value="4">4</button>
+                <button id="num5" class="btn btn-default btn-num" data-value="5">5</button>
+                <button id="num6" class="btn btn-default btn-num" data-value="6">6</button><br /><br />
+                <button id="num7" class="btn btn-default btn-num" data-value="7">7</button>
+                <button id="num8" class="btn btn-default btn-num" data-value="8">8</button>
+                <button id="num9" class="btn btn-default btn-num" data-value="9">9</button><br /><br />
+                <button id="clear" class="btn btn-light btn-num" data-value="clear" style="font-size:40px;"><i class="fa fa-arrow-circle-left"></i></button>
+                <button id="num0" class="btn btn-default btn-num" data-value="0">0</button>
+                <button id="ok" class="btn btn-primary btn-num" data-value="ok" style="font-size:20px;">ตกลง</button>              
+            </div>
+        </div>
+    </div>
+
+   <br/>
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <button type="button" class="btn btn-default title-default-small" onclick="window.location.href='@Url.Action("Index", "Home")'"><i class="fa fa-chevron-circle-left"></i> ย้อนกลับ</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="empModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">ข้อมูลผู้รายงาน</h4>
+            </div>
+            @using (Html.BeginForm("", "", FormMethod.Post, new { enctype = "multipart/form-data", id = "form" }))
+            {
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-5 text-center">
+                            <img src="~/images/userCard.png"  height="150" style="margin-left:auto; margin-right:auto; margin-bottom:10px"/>
+                        </div>
+                        <div class="col-md-7">
+                            @Html.Hidden("EMP_PROFILE_PATH")
+                            <div class="form-group">
+                                <label class="col-form-label">เลขบัตรประจำตัวประชาชน/เลขบัตรพนักงาน</label>
+                                <span id="CARD_NO_TXT"></span>
+                                @Html.Hidden("EMP_CARD_NO")
+                            </div>
+                            <div class="form-group">
+                                <label class="col-form-label">ชื่อ</label>
+                                <text id="EMP_NAME_TXT"></text>
+                                @Html.Hidden("EMP_NAME")
+                            </div>
+                            <div class="form-group">
+                                <label class="col-form-label">เบอร์โทร</label>
+                                <text id="TEL_TXT"></text>
+                                @Html.Hidden("TEL")
+                            </div>
+                            <div class="form-group">
+                                <label class="col-form-label">หน่วยงาน/บริษัท</label>
+                                <text id="ORGDESC_TXT"></text>
+                                @Html.Hidden("ORGDESC")
+                            </div>
+                            <div class="form-group">
+                                <label class="col-form-label">อาชีพ</label>
+                                <text id="JOBDESC_TXT"></text>
+                                @Html.Hidden("JOBDESC")
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" id="msgDiv">
+                        <div class="col-md-4 col-md-offset-1"></div>
+                        <div class="col-md-7 text-left"><h4 style="color:red;">-- ยังไม่ได้ลงทะเบียน --</h4></div>
+                        </div>
+                    </div>
+                <div class="modal-footer">
+                    <button id="registerBtn" type="button" class="btn btn-warning title-warning-small">ลงทะเบียน</button>
+                    <button id="reportBtn" type="button" class="btn btn-primary title-primary-small">ดำเนินการต่อ</button>
+                    <button type="button" class="btn btn-default title-default-small" data-dismiss="modal">ปิด</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            var validator = $("#form").validate({
+                rules: {
+                    empNum: { maxlength: 20 }
+                }
+            });
+
+            $("#form").submit(function (e) {
+                e.stopPropagation();
+                e.preventDefault();
+                return false;
+            });
+
+            $('.btn-num').click(function () {
+                $("#error").html("");
+                    let emp = $('#empNum').val()
+
+                    let num = $(this).data('value')
+
+                    if (num != 'ok' && num != 'clear') {
+                        $('#empNum').val(emp + num)
+                        $('#empNum').valid()
+                    } else if (num == 'clear') {
+                        $('#empNum').val(
+                            function (index, value) {
+                                return value.substr(0, value.length - 1);
+                            })
+                        $('#empNum').valid()
+                    } else if (num == 'ok') {
+                        $('#error').text('')
+                        if ($('#empNum').val() == '') {
+                            $('#error').text('กรุณากรอกเลขบัตรประจำตัวประชาชน')
+                            return
+                        } else if (!$('#empNum').valid()) {
+                            return;
+                        }
+                        globalFunction.showLoading("EmpProfile");
+
+                $.ajax({
+                    url: "@Url.Action("GetEmpProfile", "RptCovid19Ex")",
+                    type: "POST",
+                    data: { id: $("#empNum").val()},
+                    success: function (result) {
+                        globalFunction.hideLoading("EmpProfile");
+                        $('#registerBtn').hide();
+                        $('#reportBtn').hide(); // demo comment here
+                        $('#msgDiv').hide();
+                        if (result.success == true) {
+                            $("#EMP_CARD_NO").val(result.data.PERSON_ID);
+                            $("#EMP_NAME").val(result.data.FULLNAME);
+                            $("#ORGDESC").val(result.data.ORGDESC);
+                            $("#JOBDESC").val(result.data.JOBDESC);
+                            $("#TEL").val(result.data.TEL);
+
+                            $("#CARD_NO_TXT").text(result.data.PERSON_ID);
+                            $("#EMP_NAME_TXT").text(result.data.FULLNAME);
+                            $("#ORGDESC_TXT").text(result.data.ORGDESC);
+                            $("#JOBDESC_TXT").text(result.data.JOBDESC);
+                            $("#TEL_TXT").text(result.data.TEL);
+
+                            $('#reportBtn').show(); // demo comment here
+                            $('#empModal').modal('show')
+                        } else {
+                            $("#EMP_CARD_NO").val($("#empNum").val());
+                            $("#EMP_NAME").val("");
+                            $("#ORGDESC").val("");
+                            $("#JOBDESC").val("");
+                            $("#TEL").val("");
+
+                            $("#CARD_NO_TXT").text($("#empNum").val());
+                            $("#EMP_NAME_TXT").text("");
+                            $("#ORGDESC_TXT").text("");
+                            $("#JOBDESC_TXT").text("");
+                            $("#TEL_TXT").text("");
+
+                            $('#reportBtn').hide(); // demo comment here
+                            $('#registerBtn').show();
+                            $('#msgDiv').show();
+                            $('#empModal').modal('show')
+                        }
+                    },
+                    error: function (e) {
+                        globalFunction.hideLoading("EmpProfile");
+                        globalFunction.alert({ type: "error", message: "เกิดข้อผิดพลาด" });
+                    }
+                });
+
+                    }
+
+            })
+
+            $("#registerBtn").on('click', function () {
+
+                window.location.href = "@Url.Action("Register","RptCovid19Ex")?id=" + $("#EMP_CARD_NO").val();
+
+            });
+
+            $("#reportBtn").on('click', function () {
+
+                window.location.href = "@Url.Action("Intro","RptCovid19Ex")?id=" + $("#EMP_CARD_NO").val();
+
+            });
+
+        })
+    </script>
+}

@@ -1,0 +1,66 @@
+﻿@{
+    /**/
+
+    ViewBag.Title = "Intro";
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
+}
+<style>
+
+    #covid-form {
+      color: #1d374a;
+        font-size: 18px;
+     background-image: url(@Url.Content("~/images/girl_symp.png"));
+        background-position: center 200%;
+        background-repeat: no-repeat;
+        height: 100%;
+        padding:30px;
+    }
+
+</style>
+
+<div id="covid-form" class="container">
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <h3 class="text-center"><label>คำแนะนำการกรอกข้อมูล</label></h3>
+                    <ul>
+                        <li>ผู้ที่เดินทางไปต่างประเทศให้กดปุ่ม เคยเดินทางไปต่างประเทศ</li>
+                        <li>สามารถกดปุ่ม รายงานประจำวัน เพื่อรายงานสุขภาพในแต่ละวัน</li>
+                        <li>สามารถกดปุ่ม ประวัติการรายงาน เพื่อดูรายละเอียดการรายงานสุขภาพ</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br /><br />
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <a class="btn btn-group-lg btn-lg add-red-hover" href="@Url.Action("Form")?id=@ViewBag.PERSON_ID" style="min-width:255px; color: #1d374a; background-color:#ffaa39; background-image:url(@Url.Content("~/images/covid-bg.png"));">
+                <i class="fa fa-3x fa-plane"></i><br /><b style="font-size:22px">เคย</b>เดินทางไปต่างประเทศ
+            </a>
+            <a class="btn btn-group-lg btn-lg add-red-hover" href="@Url.Action("FormDaily")?id=@ViewBag.PERSON_ID" style="min-width:255px; color: #1d374a; background-color:#9ccc65; background-image:url(@Url.Content("~/images/covid-bg.png"));">
+                <i class="fa fa-3x fa-calendar-check-o"></i><br />รายงาน<b style="font-size:22px">ประจำวัน</b>
+            </a>
+            <a href="@Url.Action("History", "RptCovid19Ex")/@ViewBag.PERSON_ID" class="btn btn-group-lg btn-lg add-green-hover" style="min-width:255px; color:#1d374a; background-color:#e0e0e0; background-image:url(@Url.Content("~/images/covid-bg.png"));">
+                <i class="fa fa-3x fa-search"></i>
+                <br /><b style="font-size:22px">ประวัติ</b>การรายงาน
+            </a>
+        </div>
+    </div>
+    <br />
+    <br />
+    <div class="row">
+        <div class="col-md-12 text-right">
+            <button type="button" class="btn btn-default title-default-small" onclick="window.location.href='@Url.Action("Index", "RptCovid19Ex")'"><i class="fa fa-chevron-circle-left"></i> ย้อนกลับ</button>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script type="text/javascript">
+        $(function () {
+
+        });
+    </script>
+}

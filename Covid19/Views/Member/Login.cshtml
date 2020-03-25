@@ -1,0 +1,69 @@
+﻿
+@{
+    /**/
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
+}
+
+<style>
+    body {
+        color: #656392;
+    }
+
+    .btn-num {
+        width: 70px;
+        height: 70px;
+        font-size: 40px;
+        border-radius: 50%;
+        color: #656392;
+    }
+
+    .header {
+        /*padding: 10px 0 30px;*/
+        width: 100%;
+        height: 100%;
+        /*background-image: linear-gradient( #ffaa39, #ffaa39);*/
+    }
+
+    #ok {
+        background: #656392;
+        color: #fff;
+        border-color: #656392;
+    }
+</style>
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-6 col-sm-offset-3 text-center">
+            <form role="form" id="frmLogin" name="frmLogin" action="@Url.Action("Login","Member")" method="post" enctype="application/x-www-form-urlencoded">
+                <div class="header">
+                    <h3>ชื่อผู้ใช้งาน</h3>
+                    <input type="text" name="username" class="form-control input-lg text-center" style="width: 250px; margin-left: auto; margin-right: auto; font-size: 30px" data-rule-required="true" />
+                </div>
+                <div class="header">
+                    <h3>รหัสผ่าน</h3>
+                    <input type="password" name="password" class="form-control input-lg text-center" style="width: 250px; margin-left: auto; margin-right: auto; font-size: 30px" data-rule-required="true" />
+                </div>
+                @if (TempData["LOGIN_FAILED"] != null && (string)TempData["LOGIN_FAILED"] == "Y")
+                {
+                    <div class="header">
+                        <h3 class="text-danger">ไม่พบผู้ใช้งานที่ระบุ</h3>
+                    </div>
+                }
+                <div class="header" style="margin-top: 15px;">
+                    <button type="submit" class="btn btn-default title-default-small">เข้าสู่ระบบ</button>
+                    <button type="button" class="btn btn-default title-default-small" onclick="window.location.href='@Url.Action("Index", "Home")'"><i class="fa fa-chevron-circle-left"></i> ย้อนกลับ</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        $(function () {
+            $("#frmLogin").validate();
+        });
+    </script>
+}

@@ -1,0 +1,445 @@
+﻿@model Covid19.ViewModels.CovidHealthCheckViewModel
+@{
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
+
+    var selectListModel = (SelectListModel)ViewBag.ListModel;
+
+    var watchoutContryNames = selectListModel.LUT_COUNTRY_WATCHOUT().Select(o => o.Text).ToList();
+}
+<style>
+
+    #covid-form {
+        font-size: 18px
+    }
+           
+</style>
+
+<div id="covid-form" class="panel panel-primary" style="margin-top:10px; margin-bottom:10px">
+    <div class="panel-heading">
+            <h3 class="panel-title">
+                แบบประเมินความเสี่ยงต่อการติดเชื้อ COVID-19
+            </h3>
+        </div>
+    <div class="panel-body">
+        <p class="text-danger">*แบบฟอร์มอ้างอิงจากโรงพยาบาลราชวิถี หากท่านนำไปใช้กรุณาติดต่อโรงพยาบาลอีกครั้ง</p>
+        @using (Html.BeginForm("Form", "Covid19HealthCheck", FormMethod.Post, new { enctype = "multipart/form-data", id = "form" }))
+        {
+            @Html.AntiForgeryToken()
+            <div class="row">
+                <div class="col-md-12">
+                    <p style="text-decoration: underline; font-weight:700;">พื้นที่ที่มีรายงานการระบาดต่อเนื่องของโรคติดเชื้อไวรัสโคโรนาสายพันธุ์ใหม่2019</p>
+                    @*<p>สาธารณรัฐประชาชนจีน ฮ่องกง มาเก๊า เกาหลีใต้ อิตาลี อิหร่าน ฝรั่งเศส สเปน สหรัฐอเมริกา สวิตเซอร์แลนด์ นอร์เวย์ ญี่ปุ่น เดนมาร์ก เนเธอร์แลนด์ สวีเดน อังกฤษ เยอรมนี</p>*@
+                    <p>@string.Join(", ", watchoutContryNames)</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="col-form-label">ในช่วง 14 วันก่อนหน้า ท่านมีประวัติเสี่ยงต่อการติดเชื้อ หรือไม่ดังนี้</label>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="col-form-label">ข้อที่ 1 : ท่านเดินทางหรืออยู่อาศัยในพื้นที่ที่มีรายงานการระบาดต่อเนื่องของโรคCOVID-19 ใน 14 วันที่ผ่านมา (พื้นที่ระบาดระบุไว้ด้านบน)</label>
+                        <div>
+                            @foreach (SelectListItem item in selectListModel.LUT_YESNO())
+                            {
+                                <label style="margin-left:20px;" class="radio-inline">
+                                    <input type="radio" class="parent-validation" value="@item.Value" name="TRAVEL_IN_14_DAYS_FLAG" @if (@item.Value == "false") { <text> checked="checked" </text> } /> @item.Text
+                                </label>
+                            }
+                            <div id="showCounOpt1" style="display:none">
+                                @Html.DropDownListFor(o => o.TRAVEL_IN_14_DAYS_COUNTRY, selectListModel.LUT_COUNTRY_ALL(), "", htmlAttributes: new { @class = "form-control", style = "width:220px" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="col-form-label">ข้อที่ 2 : ท่านเป็นผู้ที่ประกอบอาชีพที่สัมผัสใกล้ชิดกับนักท่องเที่ยวต่างชาติ สัมผัสใกล้ชิด หมายถึง ได้สนทนากันในระยะน้อยกว่า 1 เมตร และนานมากกว่า 5 นาที หรือถูกไอ/จามใส่โดยไม่มีการป้องกันเช่นใส่ mask</label>
+                        <div>
+                            @foreach (SelectListItem item in selectListModel.LUT_YESNO())
+                            {
+                                <label style="margin-left:20px;" class="radio-inline">
+                                    <input type="radio" class="parent-validation" value="@item.Value" name="CLOSE_TO_FOREIGNER_FLAG" @if (@item.Value == "false") { <text> checked="checked" </text> } /> @item.Text
+                                </label>
+                            }
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="showCounOpt2" style="display:none" class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="col-form-label">อาชีพของท่าน (เพื่อการเก็บข้อมูล ในการปรับปรุงแบบสอบถามเท่านั้น)</label>
+                        @Html.DropDownListFor(o => o.OCCUPATION_ID, selectListModel.LUT_OCCUPATION(), "", htmlAttributes: new { @class = "form-control" })
+                    </div>
+                </div>
+                @*<div class="col-md-6">
+                    <div class="form-group">
+                        <label class="col-form-label">หากสามารถระบุเพิ่มเติมเกี่ยวกับอาชีพ</label>
+                        <input type="text" name="GROUP_OCCUPATION_DETAIL" id="GROUP_OCCUPATION_DETAIL" class="form-control" autocomplete="off" />
+                    </div>
+                </div>*@
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="col-form-label">ข้อที่ 3 : มีประวัติใกล้ชิดหรือสัมผัสกับผู้ป่วยเข้าข่ายหรือยืนยันโรคติดเชื้อไวรัส COVID-19</label>
+                        <div>
+                            @foreach (SelectListItem item in selectListModel.LUT_YESNO())
+                            {
+                                <label style="margin-left:20px;" class="radio-inline">
+                                    <input type="radio" class="parent-validation" value="@item.Value" name="CLOSE_TO_PATIENT_FLAG" @if (@item.Value == "false") { <text> checked="checked" </text> } /> @item.Text
+                                </label>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="col-form-label">ข้อที่ 4 : มีผู้ที่อยู่อาศัยร่วมบ้านเดินทางกลับมาจากพื้นที่ที่มีรายงานการ ระบาดของโรคติดเชื้อCOVID-19 (พื้นที่ระบาดระบุไว้ด้านบน)</label>
+                        <div>
+                            @foreach (SelectListItem item in selectListModel.LUT_YESNO())
+                            {
+                                <label style="margin-left:20px;" class="radio-inline">
+                                    <input type="radio" class="parent-validation" value="@item.Value" name="TRAVEL_IN_14_DAYS_OTHER_FLAG" @if (@item.Value == "false") { <text> checked="checked" </text> } /> @item.Text
+                                </label>
+                            }
+                            <div id="showCounOpt4" style="display:none">
+                                @Html.DropDownListFor(o => o.TRAVEL_IN_14_DAYS_COUNTRY_OTHER, selectListModel.LUT_COUNTRY_ALL(), "", htmlAttributes: new { @class = "form-control", style = "width:220px" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="col-form-label">ข้อที่ 5 : เป็นบุคลากรทางการแพทย์หรือสาธารณสุข ที่สัมผัสกับผู้ป่วยเข้าเกณฑ์สอบสวนโรคCOVID-19</label>
+                        <div>
+                            @foreach (SelectListItem item in selectListModel.LUT_YESNO())
+                            {
+                                <label style="margin-left:20px;" class="radio-inline">
+                                    <input type="radio" class="parent-validation" value="@item.Value" name="MEDICAL_STAFF_FLAG" @if (@item.Value == "false") { <text> checked="checked" </text> } /> @item.Text
+                                </label>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr />
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="col-form-label">
+                            ท่านมีอาการดังต่อไปนี้หรือไม่ (หากไม่มีอาการไม่ต้องกดทำเครื่องหมายใดๆ)
+                        </label>
+                        <div>
+                            @foreach (SelectListItem item in selectListModel.LUT_HEALTH_SYMTOM())
+                            {
+                                <label style="margin-left:20px;" class="checkbox-inline"> <input id="SYMTOMS_@item.Value" type="checkbox" class="parent-validation" value="@item.Value" name="SYMTOMS"> <i></i>@item.Text</label>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="col-form-label">
+                            อายุของท่าน (ปี)
+                        </label>
+                        <input id="AGE" type="text" name="AGE" class="form-control" autocomplete="off" />
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="col-form-label">
+                            จังหวัด
+                        </label>
+                        @Html.DropDownListFor(o => o.PROVINCE_ID, Enumerable.Empty<SelectListItem>(), htmlAttributes: new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="col-form-label">
+                            อำเภอ
+                        </label>
+                        @Html.DropDownListFor(o => o.AMPHUR_ID, Enumerable.Empty<SelectListItem>(), htmlAttributes: new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="col-form-label">ในสถานที่ท่านที่ไปประจำ คนที่สนิทใกล้ชิดกับท่าน มีอาการ ไข้ ไอ น้ำมูก เสมหะ มากกว่า 5 คน พร้อมๆกัน ในช่วงเวลาภายใน 1 สัปดาห์หรือไม่่</label>
+                        <div>
+                            @foreach (SelectListItem item in selectListModel.LUT_YESNO())
+                            {
+                                <label style="margin-left:20px;" class="radio-inline">
+                                    <input type="radio" class="parent-validation" value="@item.Value" name="FRIENT_HAS_FLU_FLAG" @if (@item.Value == "false") { <text> checked="checked" </text> } /> @item.Text
+                                </label>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="showCounOpt6" style="display:none" class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="col-form-label">
+                            ประเภทของสถานที่
+                        </label><br/>
+                        @Html.DropDownListFor(o => o.LOCATION_TYPE_ID, selectListModel.LUT_LOCATION_TYPE(), "", htmlAttributes: new { @class = "form-control" })
+                    </div>
+                </div>
+                @*<div class="col-md-6">
+            <div class="form-group">
+                <label class="col-form-label">หากสามารถระบุเพิ่มเติมเกี่ยวกับอาชีพ</label>
+                <input type="text" name="GROUP_OCCUPATION_DETAIL" id="GROUP_OCCUPATION_DETAIL" class="form-control" autocomplete="off" />
+            </div>
+        </div>*@
+            </div>
+            <hr />
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <div class="form-group">
+                        <button id="btnSubmit" type="submit" class="btn btn-primary title-primary-small"><i class="fa fa-save"></i> ประเมินความเสี่ยง</button>
+                        <button id="btnCancel" class="btn btn-default title-default-small" type="button" onclick="window.location.href='@Url.Action("Index", "Home")'"><i class="fa fa-remove"></i> ยกเลิก</button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="InfoModal" tabindex="-1" role="dialog" aria-labelledby="InfoModal">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel">ผลการประเมินความเสี่ยงต่อการติดเชื้อ COVID-19</h4>
+            </div>
+            <div class="modal-body text-center">
+                <div class="row">
+                    <div class="col-md-12">
+                        <img src="~/images/cautious.png" width="250" />
+                        <h3>คุณไม่มีความเสี่ยงสัมผัสเชื้อ CORONA VIRUS 2019</h3>
+                    </div>
+                    <div class="col-md-12" style="margin-top:20px;">
+                        <h4>
+                            <a href="@ViewBag.UpdatedSituation" style="text-decoration:underline;" target="_blank">ติดตามสถานการณ์ล่าสุด</a>
+                        </h4>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="closeBtn" type="button" class="btn btn-primary">ปิด</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="WarningModal" tabindex="-1" role="dialog" aria-labelledby="WarningModal">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel">ผลการประเมินความเสี่ยงต่อการติดเชื้อ COVID-19</h4>
+            </div>
+            <div class="modal-body text-center">
+                <div class="row">
+                    <div class="col-md-12">
+                        <img src="~/images/pneumonia2.png" width="250" />
+                        <h3>คุณมีความเสี่ยงในการสัมผัสเชื้อโรค CORONA VIRUS 2019 แต่ยังไม่มีความจำเป็นต้องไปรพ. เพื่อตรวจหาโรค</h3>
+                    </div>
+                    <div class="col-md-12" style="margin-top:20px;">
+                        <h4>
+                            <a href="@ViewBag.UpdatedSituation" style="text-decoration:underline;" target="_blank">ติดตามสถานการณ์ล่าสุด</a>
+                        </h4>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="closeBtn2" type="button" class="btn btn-primary">ปิด</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="DangerModal" tabindex="-1" role="dialog" aria-labelledby="DangerModal">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel">ผลการประเมินความเสี่ยงต่อการติดเชื้อ COVID-19</h4>
+            </div>
+            <div class="modal-body text-center">
+                <div class="row">
+                    <div class="col-md-12">
+                        <img src="~/images/quarantine.png" width="250" />
+                        <h3>คุณอาจติดเชื้อ CORONA VIRUS 2019 กรุณาป้องกันเชื้อโรค และมาพบแพทย์ที่โรงพยาบาลตามสิทธิ์การรักษา</h3>
+                    </div>
+                    <div class="col-md-12" style="margin-top:20px;">
+                        <h4>
+                            <a href="@ViewBag.UpdatedSituation" style="text-decoration:underline;" target="_blank">ติดตามสถานการณ์ล่าสุด</a>
+                        </h4>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="closeBtn3" type="button" class="btn btn-primary">ปิด</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="~/js/Geo9/prov-amp-select.js"></script>
+    <script type="text/javascript">
+        $(function () {
+
+            $("#TRAVEL_IN_14_DAYS_COUNTRY,#LOCATION_TYPE_ID,#TRAVEL_IN_14_DAYS_COUNTRY_OTHER,#OCCUPATION_ID")
+                .select2({ allowClear: true, placeholder: '-- กรุณาเลือก --' })
+                .on('change', function () { $(this).valid();});
+
+            initProvSelect();
+
+            function initProvSelect() {
+                $.fn.ProvSelect.Default.LutAreaPath = '@Url.Action("LUT_PROVINCE","Data")';
+                var ProvSelect = $.fn.ProvSelect('#PROVINCE_ID', '#AMPHUR_ID', function () {});
+            }
+
+            $("input[name='TRAVEL_IN_14_DAYS_FLAG']").change(function () {
+                if ($(this).val() == "true") {
+                    $('#showCounOpt1').css("display", "inline-block")
+                } else {
+                    $('#showCounOpt1').hide()
+                }
+            });
+
+            $("#PROVINCE_ID").change(function () {
+                if ($(this).val()) {
+
+                } else {
+
+                }
+            });
+
+            $("input[name='CLOSE_TO_FOREIGNER_FLAG']").change(function () {
+                if ($(this).val() == "true") {
+                    $('#showCounOpt2').show()
+                } else {
+                    $('#showCounOpt2').hide()
+                }
+            });
+
+            $("input[name='TRAVEL_IN_14_DAYS_OTHER_FLAG']").change(function () {
+                if ($(this).val() == "true") {
+                    $('#showCounOpt4').css("display", "inline-block")
+                } else {
+                    $('#showCounOpt4').hide()
+                }
+            });
+
+            $("input[name='FRIENT_HAS_FLU_FLAG']").change(function () {
+                if ($(this).val() == "true") {
+                    $('#showCounOpt6').show()
+                } else {
+                    $('#showCounOpt6').hide()
+                }
+            });
+
+            var validator = $("#form").validate({
+                rules: {
+                    TRAVEL_IN_14_DAYS_COUNTRY: { required: true },
+                    GROUP_OCCUPATION_ID: { required: true },
+                    TRAVEL_IN_14_DAYS_COUNTRY_OTHER: { required: true },
+                    AGE: {
+                        number: true, min: 15, max: 150,
+                    },
+                    LOCATION_TYPE_ID: { required: true },
+                },
+                submitHandler: function (form) {
+                    globalFunction.confirm({
+                        message: 'แบบสอบถามนี้เป็นการประเมินเบื้องต้นเท่านั้น การตัดสินใจส่งตรวจหรือไม่ ขึ้นอยู่กับการซักประวัติเพิ่มเติมและดุลยพินิจของแพทย์/พยาบาลเป็นหลัก<br/><br/>ต้องการทำการประเมินหรือไม่ ?',
+                        okCallback: function () {
+                            globalFunction.showLoading("submit");
+
+                            // Get form
+                            var form = $('#form')[0];
+                            // Create an FormData object
+                            var data = new FormData(form);
+
+                            $.ajax({
+                                url: $("#form").attr('action'),
+                                type: "POST",
+                                data: data, //for file
+                                processData: false, //for file
+                                contentType: false, //for file
+                                success: function (result) {
+                                    globalFunction.hideLoading("submit");
+                                    if (result.success == true) {
+                                        if (result.summaryResult == "1") {
+                                            $("#InfoModal").modal('show');
+                                        } else if (result.summaryResult == "2") {
+                                            $("#WarningModal").modal('show');
+                                        } else if (result.summaryResult == "3") {
+                                            $("#DangerModal").modal('show');
+                                        }
+                                    } else {
+                                        if (result.code == -1) {
+                                            globalFunction.alert({
+                                                message: "Session หมดอายุ กรุณาเข้าสู่ระบบอีกครั้ง",
+                                                callback: function () {
+                                                    window.location.href = "@Url.Action("Login","Home")";
+                                                },
+                                            });
+                                        } else if (result.code == 1) {
+                                            globalFunction.alert({ type: "error", message: result.message });
+                                        } else {
+                                            globalFunction.alert({ type: "error", message: "เกิดข้อผิดพลาด" });
+                                        }
+                                    }
+                                },
+                                error: function (e) {
+                                    globalFunction.hideLoading("submit");
+                                    globalFunction.alert({ type: "error", message: "เกิดข้อผิดพลาด" });
+                                }
+                            });
+                        }
+                    });
+
+
+                    return false;
+                }
+            });
+
+            $("#closeBtn,#closeBtn2,#closeBtn3").on('click', function () {
+                window.location.href = "@Url.Action("Index", "Home")";
+            });
+
+        });
+    </script>
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
